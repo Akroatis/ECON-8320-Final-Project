@@ -1,21 +1,19 @@
-import streamlit as st
 import pandas as pd
-import os
 import numpy as np
-import plotly.express as px
 import datetime as dt
 
 
 # Uniquely, I encountered a substantial issue using .xlsx on Mac.  To ensure that this works on any computer,
 # I've chosen to just use a csv file. This is a limitation, but thankfully a very, very easy one to overcome,
 # As you can literally just save an Excel sheet as a .csv file using the 'Save As' function within Excel
-dataset = "https://raw.githubusercontent.com/Akroatis/ECON-8320-Final-Project/refs/heads/main/Data%20Set.csv"
+dataset = "Data Set.csv"
 
 df = pd.DataFrame(pd.read_csv(dataset)) 
 
 # The next step is to individually clean columns in such a way that any *new* data will not cause a python conniption
 # First, make sure none of these numbers have spaces anywhere
 df['Patient ID#'] = df['Patient ID#'].replace(' ', '')
+df['Patient ID#'] = df['Patient ID#'].astype('Int64')
 
 # Next, a quick conversion of the Grant Req Date column to datetime format and a removal of any spaces (just in case)
 df['Grant Req Date'] = df['Grant Req Date'].replace(' ', '')
@@ -27,7 +25,7 @@ df['Grant Req Date'] = pd.to_datetime(df['Grant Req Date'], '%Y-%m-%d')
 
 # The " Remaining Balance " column (those extra spaces are truly a bane) has a few details that really make me scratch my head
 # These include punctuation (makes sense) and using a dash whenever a remaining balance is 0 (bro why, like actually)
-# Thankfully they're pretty simple to solve as we go in and swap things for what we want them to be, then turn the whole
+# Thankfully, they're pretty simple to solve as we go in and swap things for what we want them to be, then turn the whole
 # set of numbers into real numbers (good old 2 point floats) instead of strings
 
 # This translation function effectively takes all the weird punctuation and swaps it for what I want it to be
@@ -55,7 +53,7 @@ df['Payment Submitted? Boolean'] = df['Payment Submitted?']
 df['Payment Submitted?'] = pd.to_datetime(df['Payment Submitted?'], errors = 'coerce')
 df['Payment Submitted?'] = pd.to_datetime(df['Payment Submitted?'], '%Y-%m-%d')
 
-df['Payment Submitted? Boolean'] = df['Payment Submitted? Boolean'].replace('^0-9.*', True, regex = True)
+df['Payment Submitted? Boolean'] = df['Payment Submitted? Boolean'].replace('[0-9].*', True, regex = True)
 df['Payment Submitted? Boolean'] = df['Payment Submitted? Boolean'].replace('No', False)
 df['Payment Submitted? Boolean'] = df['Payment Submitted? Boolean'].replace('Yes', True)
 
@@ -233,9 +231,10 @@ def state_abbrev_mapping(df, col, output_abbr = False, add_new_col = False, new_
  
     return(df)
 
-df['Pt State'] = df['Pt State'].str.title()
+df['Pt State'] = df['Pt State'].str.upper()
 df['Pt State'] = df['Pt State'].str.strip()
 state_abbrev_mapping(df, 'Pt State')
+df['Pt State'] = df['Pt State'].str.title()
 
 # With the above function having run, we now have a consistent format for states as their respective names. 
 # Now we replace any case of the "Missing" value with blank ones.  We can alter the blanks later if needed, but this is consistent for now.
@@ -244,9 +243,9 @@ df['Pt State'] = df['Pt State'].replace('(?i)missing', np.nan, regex = True)
 # Someone entered 698863 incorrectly.  Took a manual look at the city and found the zipcode error with a quick Google search
 df['Pt Zip'] = df['Pt Zip'].str.replace(" ", "")
 df['Pt Zip'] = df['Pt Zip'].replace('698863', '68863')
-df['Pt Zip'] = df['Pt Zip'].replace('(?i)missing', np.nan, regex = True)
-df['Pt Zip'] = df['Pt Zip'][0:4] # Just the first five digits of the zip code
-
+df['Pt Zip'] = df['Pt Zip'].astype(str).str[:5] # Just the first five digits of the zip code
+df['Pt Zip'] = pd.to_numeric(df['Pt Zip'], errors = 'coerce')
+df['Pt Zip'] = df['Pt Zip'].astype('Int64')
 
 # Language data cleaning
 df['Language'] = df['Language'].str.title()
@@ -314,7 +313,7 @@ df['Insurance Type'] = df['Insurance Type'].str.strip()
 df['Insurance Type'] = df['Insurance Type'].replace('(?i)uni.*', "Uninsured", regex = True)
 df['Insurance Type'] = df['Insurance Type'].replace('Unknown', np.nan)
 df['Insurance Type'] = df['Insurance Type'].replace('Missing', np.nan)
-df['Insurance Type'] = df['Insurance Type'].replace('Heathcare.gov', np.nan) # This person is insured, but Healthcare.gov is a marketplace to get *any* kind of insurance
+df['Insurance Type'] = df['Insurance Type'].replace('Heathcare.Gov', np.nan) # This person is insured, but Healthcare.gov is a marketplace to get *any* kind of insurance
 df['Insurance Type'] = df['Insurance Type'].replace('Medicaid & Medicare', 'Medicare & Medicaid') # Consistency
 df['Insurance Type'] = df['Insurance Type'].replace('Medicare & Other')
 
