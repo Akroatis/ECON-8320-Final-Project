@@ -22,7 +22,7 @@ st.set_page_config(
 
 st.title("Nebraska Cancer Specialists Hope Foundation Grant Information Dashboard")
 st.logo(
-    image = "https://www.bricksrus.com/donorsite/images/logo-NCSHF.png",
+    image = "https://ncshopefoundation.org/wp-content/uploads/2023/05/sun.webp",
     icon_image = "https://ncshopefoundation.org/wp-content/uploads/2023/05/sun.webp"
 )
 
