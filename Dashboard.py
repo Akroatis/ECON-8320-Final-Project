@@ -164,9 +164,6 @@ def execSummary():
 
 
 
-
-    st.dataframe(dfe)
-
 pageToFunc = {
     "Application Status": appsReadyForReview,
     "Support Given": supportGiven,
