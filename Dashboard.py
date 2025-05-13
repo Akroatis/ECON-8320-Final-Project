@@ -134,16 +134,38 @@ def grantBreakdown():
     st.data_editor(dfg)
 
     # I realized after I had done this and did not have the time that this particular problem is way, way more complicated
-    # than this code gives credit.  To actually solve this, one would have to find the last entry from each requestor in a 
-    # given grant year, then see if this value is positive and store all entries into a new column or frame.  This code 
+    # than this code gives credit.  To actually solve this, one would have to find the last entry from each requestor in 
+    # each grant year, then see if this value is positive and store all entries into a new column or frame.  This code 
     # most certainly *does not* do that, but alas, I was out of both time and ideas.
 
 def execSummary():
 
-    st.title("Executive Summary")
-    dfe = df
-    datetime.today().year() - 1
-    st.dataframe(df)
+    lastYear = datetime.today().year - 1
+    st.title(f"{lastYear} Executive Summary")
+    dfe = df.loc[(pd.to_datetime(df['Grant Req Date']).dt.year == (datetime.today().year - 1))]
+    dfe = dfe.dropna(axis = 0, subset = ' Amount ')
+    dfe['Payment Method'] = dfe['Payment Method'].replace('GC', 'Gift Card')
+    dfe['Payment Method'] = dfe['Payment Method'].replace('CC', 'Credit Card')
+    dfe['Payment Method'] = dfe['Payment Method'].replace('JE', 'Journal Entry')
+    dfe['Payment Method'] = dfe['Payment Method'].replace('CK', 'Check')
+
+
+    st.write(f"— The Hope Foundation gave grants to {dfe['Patient ID#'].nunique()} individuals in {lastYear} across dozens of demographics")
+
+    st.write(f"— A total of ${dfe[' Amount '].sum().round(2)} was given out across {dfe[' Amount '].count()} grants")
+    
+    # I'm aware that Housing is not dynamic here. While it's unlikely anything will overtake Housing, I could not figure out a way to list the Type of Assistance with the highest sum paid out
+    st.write(f"— The most common type of assistance request was {dfe['Type of Assistance (CLASS)'].mode()[0]}, while the majority of grant funding went to Housing")
+
+    st.subheader(f"Total Grant Allocation by Type of Assistance in {lastYear}")
+    st.bar_chart(dfe.groupby('Type of Assistance (CLASS)')[' Amount '].sum())
+
+    st.write(f"— Keeping in line with this, the most common payment method was via {dfe['Payment Method'].mode()[0]}")
+
+
+
+
+    st.dataframe(dfe)
 
 pageToFunc = {
     "Application Status": appsReadyForReview,
