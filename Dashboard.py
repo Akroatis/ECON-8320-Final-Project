@@ -103,7 +103,7 @@ def supportGiven():
         elif demoSelection == 'Race':
             demoSelectionDisplay('Race', 'Race')
 
-        elif demoSelection == 'Roundtrip Distance'
+        elif demoSelection == 'Roundtrip Distance':
             demoSelectionDisplay('Distance roundtrip/Tx', 'Roundtrip Distance')
 
             
