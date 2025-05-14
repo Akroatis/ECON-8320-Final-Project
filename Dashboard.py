@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 
 df = pd.read_csv("Cleaned Data Set.csv", index_col = 0)
 df = df.drop('Payment Submitted? Boolean', axis = 1) # Removing columns that exist solely for data preservation
-dfYOB = df
+dfYOB = df # Sort of a data preservation secondary data frame
 df = df.drop('YOB', axis = 1)
 df = df.drop('Payment Method Original', axis = 1)
 
@@ -66,7 +66,7 @@ def demoSelectionDisplay(column = str, demographic = str):
 
 def supportGiven():
     with st.form(key = "support_given_form"):
-        demographics = ['State', 'Gender', 'Monthly Income', 'Insurance Type', 'Age', 'Type of Assistance', 'Hispanic/Latino?', 'Sexual Orientation']
+        demographics = ['State', 'Gender', 'Monthly Income', 'Insurance Type', 'Age', 'Type of Assistance', 'Hispanic/Latino?', 'Sexual Orientation', 'Marital Status', 'Race', "Roundtrip Distance"]
 
         st.title("Support Given by Demographic")
         demoSelection = st.selectbox("Select Demographic", demographics)
@@ -85,7 +85,7 @@ def supportGiven():
             demoSelectionDisplay('Insurance Type', 'Insurance Type')
 
         elif demoSelection == 'Age':
-            df['Age'] = datetime.today().year - dfYOB['YOB']
+            df['Age'] = datetime.today().year - dfYOB['YOB'] # Little extra here to actually calculate age
             demoSelectionDisplay('Age', 'Age')
 
         elif demoSelection == 'Type of Assistance':
@@ -97,8 +97,17 @@ def supportGiven():
         elif demoSelection == 'Sexual Orientation':
             demoSelectionDisplay('Sexual Orientation', 'Sexual Orientation')
 
-            
+        elif demoSelection == 'Marital Status':
+            demoSelectionDisplay('Marital Status', 'Marital Status')
+        
+        elif demoSelection == 'Race':
+            demoSelectionDisplay('Race', 'Race')
 
+        elif demoSelection == 'Roundtrip Distance'
+            demoSelectionDisplay('Distance roundtrip/Tx', 'Roundtrip Distance')
+
+            
+# Third page setup
 def supportWait():
 
     st.title("Time Between Request and Payment")
@@ -139,29 +148,31 @@ def grantBreakdown():
 
 def execSummary():
 
-    lastYear = datetime.today().year - 1
+    lastYear = datetime.today().year - 1 # Use last year regardless of what year it is
     st.title(f"{lastYear} Executive Summary")
     dfe = df.loc[(pd.to_datetime(df['Grant Req Date']).dt.year == (datetime.today().year - 1))]
-    dfe = dfe.dropna(axis = 0, subset = ' Amount ')
-    dfe['Payment Method'] = dfe['Payment Method'].replace('GC', 'Gift Card')
+    dfe = dfe.dropna(axis = 0, subset = ' Amount ') # Only include grants that actually went out
+    dfe['Payment Method'] = dfe['Payment Method'].replace('GC', 'Gift Card') # casting these back for legibility
     dfe['Payment Method'] = dfe['Payment Method'].replace('CC', 'Credit Card')
     dfe['Payment Method'] = dfe['Payment Method'].replace('JE', 'Journal Entry')
     dfe['Payment Method'] = dfe['Payment Method'].replace('CK', 'Check')
 
-
+    # Ensuring all of the elemnts here are dynamic and based on the data held within this page
     st.write(f"— The Hope Foundation gave grants to {dfe['Patient ID#'].nunique()} individuals in {lastYear} across dozens of demographics")
 
     st.write(f"— A total of ${dfe[' Amount '].sum().round(2)} was given out across {dfe[' Amount '].count()} grants")
     
     # I'm aware that Housing is not dynamic here. While it's unlikely anything will overtake Housing, I could not figure out a way to list the Type of Assistance with the highest sum paid out
     st.write(f"— The most common type of assistance request was {dfe['Type of Assistance (CLASS)'].mode()[0]}, while the majority of grant funding went to Housing")
+    st.write(f"— The most common payment method was via {dfe['Payment Method'].mode()[0]}")
 
+    # Bit of a rehash with this info
     st.subheader(f"Total Grant Allocation by Type of Assistance in {lastYear}")
     st.bar_chart(dfe.groupby('Type of Assistance (CLASS)')[' Amount '].sum())
 
-    st.write(f"— Keeping in line with this, the most common payment method was via {dfe['Payment Method'].mode()[0]}")
+    
 
-
+# Got the basics of this from a YouTube video by a channel called Tech with Tim.  Really interesting and clever format for arranging pages as functions
 
 pageToFunc = {
     "Application Status": appsReadyForReview,
