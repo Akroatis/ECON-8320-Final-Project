@@ -251,7 +251,8 @@ df['Pt Zip'] = df['Pt Zip'].astype('Int64')
 df['Language'] = df['Language'].str.title()
 df['Language'] = df['Language'].str.strip()
 df['Language'] = df['Language'].replace('(?i)missing', np.nan, regex = True)
-df['Language'] = df['Language'].replace("Karen", np.nan) # I don't know what this was supposed to be.  Instinct says 'Korean', but without proof, this entry must be invalidated
+# So it turns out according to Glen that 'Karen' is  pronounced 'Kah-Ren' and it's an ethnic group form Myanmar
+# On this note, it's back in the dataset
 df['Language'] = df['Language'].replace('English, Spanish', 'English') # Keeping things simple at one language
 
 
